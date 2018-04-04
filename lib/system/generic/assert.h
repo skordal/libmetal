@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- * 3. Neither the name of Linaro nor the names of its contributors may be used
+ * 3. Neither the name of Xilinx nor the names of its contributors may be used
  *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
@@ -29,36 +29,24 @@
  */
 
 /*
- * @file	zephyr/log.c
- * @brief	Zephyr libmetal log handler.
+ * @file	assert.h
+ * @brief	Generic assertion support.
  */
 
-#include <stdarg.h>
-#include <metal/log.h>
-#include <zephyr.h>
+#ifndef __METAL_ASSERT__H__
+#error "Include metal/assert.h instead of metal/generic/assert.h"
+#endif
 
-static const char *level_strs[] = {
-	"metal: emergency: ",
-	"metal: alert:     ",
-	"metal: critical:  ",
-	"metal: error:     ",
-	"metal: warning:   ",
-	"metal: notice:    ",
-	"metal: info:      ",
-	"metal: debug:     ",
-};
+#ifndef __METAL_GENERIC_ASSERT__H__
+#define __METAL_GENERIC_ASSERT__H__
 
-void metal_zephyr_log_handler(enum metal_log_level level,
-			      const char *format, ...)
-{
-	va_list args;
+#include <assert.h>
 
-	if (level <= METAL_LOG_EMERGENCY || level > METAL_LOG_DEBUG)
-		level = METAL_LOG_EMERGENCY;
-	printk("%s", level_strs[level]);
+/**
+ * @brief Assertion macro for bare-metal applications.
+ * @param cond Condition to evaluate.
+ */
+#define metal_sys_assert(cond) assert(cond)
 
-	va_start(args, format);
-	vprintk(format, args);
-	va_end(args);
-}
+#endif /* __METAL_GENERIC_ASSERT__H__ */
 
