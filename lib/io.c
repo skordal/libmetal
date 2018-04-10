@@ -30,6 +30,8 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <string.h>
+
 #include <metal/io.h>
 #include <metal/sys.h>
 
@@ -70,22 +72,7 @@ int metal_io_block_read(struct metal_io_region *io, unsigned long offset,
 			io, offset, dst, memory_order_seq_cst, len);
 	} else {
 		atomic_thread_fence(memory_order_seq_cst);
-		while ( len && (
-			((uintptr_t)dst % sizeof(int)) ||
-			((uintptr_t)ptr % sizeof(int)))) {
-			*(unsigned char *)dst =
-				*(const unsigned char *)ptr;
-			dst++;
-			ptr++;
-			len--;
-		}
-		for (; len >= (int)sizeof(int); dst += sizeof(int),
-					ptr += sizeof(int),
-					len -= sizeof(int))
-			*(unsigned int *)dst = *(const unsigned int *)ptr;
-		for (; len != 0; dst++, ptr++, len--)
-			*(unsigned char *)dst =
-				*(const unsigned char *)ptr;
+		memcpy(dst, ptr, len);
 	}
 	return retlen;
 }
@@ -105,22 +92,7 @@ int metal_io_block_write(struct metal_io_region *io, unsigned long offset,
 		retlen = (*io->ops.block_write)(
 			io, offset, src, memory_order_seq_cst, len);
 	} else {
-		while ( len && (
-			((uintptr_t)ptr % sizeof(int)) ||
-			((uintptr_t)src % sizeof(int)))) {
-			*(unsigned char *)ptr =
-				*(const unsigned char *)src;
-			ptr++;
-			src++;
-			len--;
-		}
-		for (; len >= (int)sizeof(int); ptr += sizeof(int),
-					src += sizeof(int),
-					len -= sizeof(int))
-			*(unsigned int *)ptr = *(const unsigned int *)src;
-		for (; len != 0; ptr++, src++, len--)
-			*(unsigned char *)ptr =
-				*(const unsigned char *)src;
+		memcpy(ptr, src, len);
 		atomic_thread_fence(memory_order_seq_cst);
 	}
 	return retlen;
@@ -147,13 +119,7 @@ int metal_io_block_set(struct metal_io_region *io, unsigned long offset,
 		for (i = 1; i < sizeof(int); i++)
 			cint |= ((unsigned int)value << (8 * i));
 
-		for (; len && ((uintptr_t)ptr % sizeof(int)); ptr++, len--)
-			*(unsigned char *)ptr = (unsigned char) value;
-		for (; len >= (int)sizeof(int); ptr += sizeof(int),
-						len -= sizeof(int))
-			*(unsigned int *)ptr = cint;
-		for (; len != 0; ptr++, len--)
-			*(unsigned char *)ptr = (unsigned char) value;
+		memset(ptr, value, len);
 		atomic_thread_fence(memory_order_seq_cst);
 	}
 	return retlen;
