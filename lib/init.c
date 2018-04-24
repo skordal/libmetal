@@ -17,7 +17,6 @@ int metal_init(const struct metal_init_params *params)
 	_metal.common.log_level     = params->log_level;
 
 	metal_list_init(&_metal.common.bus_list);
-	metal_list_init(&_metal.common.generic_shmem_list);
 	metal_list_init(&_metal.common.generic_device_list);
 
 	error = metal_sys_init(params);

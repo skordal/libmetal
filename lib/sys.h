@@ -69,9 +69,6 @@ struct metal_common_state {
 	/** List of registered buses. */
 	struct metal_list		bus_list;
 
-	/** Generic statically defined shared memory segments. */
-	struct metal_list		generic_shmem_list;
-
 	/** Generic statically defined devices. */
 	struct metal_list		generic_device_list;
 };
