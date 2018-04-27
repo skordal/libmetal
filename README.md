@@ -151,10 +151,6 @@ recommended to have OS specific implementation for mutex.
 The Linux userspace mutex implementation uses futex to wait for the lock
 and wakeup a waiter.
 
-#### Condition Variable
-libmetal condition variable APIs provide "wait" for user applications to wait
-on some condition to be met, and "signal" to indicate a particular even occurs.
-
 #### Spinlock
 libmetal spinlock APIs provides busy waiting mechanism to acquire a lock.
 
